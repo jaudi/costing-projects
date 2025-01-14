@@ -10,10 +10,7 @@ band_rates = {
     "Band 5 - Director/Expert": 200
 }
 
-# Default margin
 default_margin = 0.25  # 25%
-
-# Sample activities and sub-activities
 activities = [f"Activity {i+1}" for i in range(10)]
 sub_activities_dict = {
     "Activity 1": ["Design Phase", "Risk Assessment", "Documentation"],
@@ -27,6 +24,45 @@ sub_activities_dict = {
     "Activity 9": ["Budget Planning", "Approval Processes"],
     "Activity 10": ["Audit and Quality Control"],
 }
+
+if 'data' not in st.session_state:
+    data = []
+    for activity in activities:
+        for sub_activity in sub_activities_dict.get(activity, ["General Task"]):
+            data.append({
+                'Activity': activity,
+                'Sub-Activity': sub_activity,
+                'Band Level': 'Band 1 - Junior Analyst',
+                'Hours': 10,
+                'Margin': default_margin
+            })
+    st.session_state.data = pd.DataFrame(data)
+
+def calculate_cost(row):
+    rate = band_rates.get(row['Band Level'], 0)
+    cost = row['Hours'] * rate
+    total = cost * (1 + row['Margin'])
+    return total
+
+st.title("CRO Project Cost Estimation Tool with Sub-Activities")
+st.write("Estimate costs for activities and sub-activities across 5 band levels.")
+
+st.sidebar.header("Customize Sub-Activities")
+selected_activity = st.sidebar.selectbox("Select Main Activity", activities)
+new_sub_activity = st.sidebar.text_input("Add Sub-Activity")
+if st.sidebar.button("Add Sub-Activity"):
+    if new_sub_activity.strip() == "":
+        st.sidebar.error("Sub-Activity name cannot be empty.")
+    else:
+        new_row = {
+            'Activity': selected_activity,
+            'Sub-Activity': new_sub_activity.strip(),
+            'Band Level': 'Band 1 - Junior Analyst',
+            'Hours': 5,
+            'Margin': default_margin
+        }
+        st.session_state.data 
+
 
 # Initialize session state for sub-activities
 if 'data' not in st.session_state:
